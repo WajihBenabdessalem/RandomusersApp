@@ -12,7 +12,7 @@ class MockUserRepository: UserRepositoryProtocol {
     var cachedUsers: [User]?
     var mockError: Error?
     
-    func fetchUsers() async throws -> [User] {
+    func fetchUsers(page: Int) async throws -> [User] {
         if let error = mockError {
             throw error
         }

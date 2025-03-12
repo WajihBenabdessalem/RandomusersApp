@@ -44,7 +44,7 @@ class UsersListVC: UIViewController {
     }
     
     private func setupUI() {
-        title = "Random Users"
+        title = "Users List"
         view.backgroundColor = .systemBackground
         
         /// Configure navigation bar

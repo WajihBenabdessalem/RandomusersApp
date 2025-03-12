@@ -63,7 +63,10 @@ class UserDetailVM {
     }
     
     private func formatDate(_ dateString: String) -> String {
-        guard let date = ISO8601DateFormatter().date(from: dateString) else {
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        guard let date = isoFormatter.date(from: dateString) else {
             return dateString
         }
         

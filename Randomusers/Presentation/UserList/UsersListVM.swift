@@ -68,12 +68,13 @@ class UsersListVM {
         isLoadingMore = true
         
         do {
-            let newUsers = try await fetchUsersUseCase.loadMoreUsers()
+            let nextPage = currentPage + 1
+            let newUsers = try await fetchUsersUseCase.loadMoreUsers(page: nextPage)
             if newUsers.isEmpty {
                 hasMorePages = false
             } else {
                 users.append(contentsOf: newUsers)
-                currentPage += 1
+                currentPage = nextPage
             }
         } catch {
             print("Failed to load more users: \(error.localizedDescription)")

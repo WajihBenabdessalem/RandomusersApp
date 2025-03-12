@@ -11,7 +11,7 @@ class MockUserRemoteDataSource: UserRemoteDataSource {
     var mockUsers: [User]?
     var mockError: Error?
     
-    override func fetchUsers() async throws -> [User] {
+    override func fetchUsers(page: Int) async throws -> [User] {
         if let error = mockError {
             throw error
         }
