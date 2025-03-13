@@ -74,7 +74,7 @@ The app leverages Swift's modern concurrency features:
 
 ### Data Flow
 
-1. The app attempts to fetch user data from the randomuser.me API
+1. The app attempts to fetch user data from the [randomuser.me](https://randomuser.me/api/?results=10) API
 2. Successfully fetched data is cached locally
 3. If network is unavailable, the app serves cached data
 4. Clear error messages are displayed when both network and cache are unavailable
