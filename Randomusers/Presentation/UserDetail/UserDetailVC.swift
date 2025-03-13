@@ -37,7 +37,8 @@ class UserDetailVC: UIViewController {
     private func setupUI() {
         title = viewModel.fullName
         view.backgroundColor = .systemBackground
-        
+        navigationItem.largeTitleDisplayMode = .never
+
         /// Configure scrollView
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = true

@@ -15,18 +15,22 @@ class UsersListVM {
     
     /// Published properties
     @Published var users: [User] = []
+    @Published var filteredUsers: [User] = []
     @Published var isLoading = false
     @Published var apiError: String? = nil
     @Published var isConnected = true
     @Published var isLoadingMore = false
+    @Published var searchText: String = ""
     
     /// Paging
     private var currentPage = 1
     private var hasMorePages = true
+    private var allUsers: [User] = []
     
     init(fetchUsersUseCase: FetchUsersUseCase = FetchUsersUseCase()) {
         self.fetchUsersUseCase = fetchUsersUseCase
         setupNetworkMonitoring()
+        setupSearchBinding()
     }
     
     private func setupNetworkMonitoring() {
@@ -43,6 +47,28 @@ class UsersListVM {
             .store(in: &cancellables)
     }
     
+    private func setupSearchBinding() {
+        /// Observe searchText changes and filter users accordingly
+        $searchText
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .sink { [weak self] searchText in
+                self?.filterUsers(searchText: searchText)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func filterUsers(searchText: String) {
+        if searchText.isEmpty {
+            filteredUsers = allUsers
+        } else {
+            filteredUsers = allUsers.filter { user in
+                // Modify this based on your User model properties
+                user.name.fullName.localizedCaseInsensitiveContains(searchText) ||
+                user.email.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+    }
+    
     func fetchUsers() async {
         guard !isLoading else { return }
         
@@ -51,7 +77,8 @@ class UsersListVM {
         defer { isLoading = false }
 
         do {
-            users = try await fetchUsersUseCase.execute()
+            allUsers = try await fetchUsersUseCase.execute()
+            filterUsers(searchText: searchText)
             currentPage = 1
             hasMorePages = true
         } catch let networkError as NetworkError {
@@ -73,7 +100,8 @@ class UsersListVM {
             if newUsers.isEmpty {
                 hasMorePages = false
             } else {
-                users.append(contentsOf: newUsers)
+                allUsers.append(contentsOf: newUsers)
+                filterUsers(searchText: searchText)
                 currentPage = nextPage
             }
         } catch {
@@ -83,7 +111,7 @@ class UsersListVM {
     
     func shouldLoadMoreUsers(at index: Int) -> Bool {
         /// Loading more when user is looking at the last few items
-        return index >= users.count - 3 && hasMorePages && !isLoadingMore && isConnected
+        return index >= filteredUsers.count - 3 && hasMorePages && !isLoadingMore && isConnected && searchText.isEmpty
     }
     
     func refreshUsers() async {
