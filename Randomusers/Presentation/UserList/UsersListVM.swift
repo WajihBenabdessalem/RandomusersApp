@@ -18,11 +18,11 @@ class UsersListVM {
     @Published var isLoading = false
     @Published var apiError: String? = nil
     @Published var isConnected = true
+    @Published var isLoadingMore = false
     
     /// Paging
     private var currentPage = 1
     private var hasMorePages = true
-    private var isLoadingMore = false
     
     init(fetchUsersUseCase: FetchUsersUseCase = FetchUsersUseCase()) {
         self.fetchUsersUseCase = fetchUsersUseCase
@@ -48,7 +48,8 @@ class UsersListVM {
         
         isLoading = true
         apiError = nil
-        
+        defer { isLoading = false }
+
         do {
             users = try await fetchUsersUseCase.execute()
             currentPage = 1
@@ -58,28 +59,26 @@ class UsersListVM {
         } catch {
             apiError = error.localizedDescription
         }
-        
-        isLoading = false
     }
     
     func loadMoreUsers() async {
         guard !isLoading && !isLoadingMore && hasMorePages && isConnected else { return }
         
         isLoadingMore = true
-        
+        defer { isLoadingMore = false }
+
         do {
-            let newUsers = try await fetchUsersUseCase.loadMoreUsers()
+            let nextPage = currentPage + 1
+            let newUsers = try await fetchUsersUseCase.loadMoreUsers(page: nextPage)
             if newUsers.isEmpty {
                 hasMorePages = false
             } else {
                 users.append(contentsOf: newUsers)
-                currentPage += 1
+                currentPage = nextPage
             }
         } catch {
             print("Failed to load more users: \(error.localizedDescription)")
         }
-        
-        isLoadingMore = false
     }
     
     func shouldLoadMoreUsers(at index: Int) -> Bool {

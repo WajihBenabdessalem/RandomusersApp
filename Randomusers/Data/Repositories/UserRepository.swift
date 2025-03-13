@@ -17,11 +17,13 @@ class UserRepository: UserRepositoryProtocol {
         self.localDataSource = localDataSource
     }
     
-    func fetchUsers() async throws -> [User] {
+    func fetchUsers(page: Int = 1) async throws -> [User] {
         do {
-            let users = try await remoteDataSource.fetchUsers()
+            let users = try await remoteDataSource.fetchUsers(page: page)
             /// Cache the fetched users
-            await localDataSource.saveUsers(users)
+            if page == 1 {
+                await localDataSource.saveUsers(users)
+            }
             return users
         } catch {
             throw error

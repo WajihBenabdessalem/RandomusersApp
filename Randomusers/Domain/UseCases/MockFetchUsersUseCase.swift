@@ -20,7 +20,7 @@ class MockFetchUsersUseCase: FetchUsersUseCase {
         return mockUsers ?? []
     }
     
-    override func loadMoreUsers() async throws -> [User] {
+    override func loadMoreUsers(page: Int) async throws -> [User] {
         if let error = mockError {
             throw error
         }

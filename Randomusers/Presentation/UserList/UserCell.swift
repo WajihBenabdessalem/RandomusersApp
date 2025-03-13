@@ -20,6 +20,9 @@ class UserCell: UITableViewCell {
     private var cancellables = Set<AnyCancellable>()
     private var imageLoadTask: Task<Void, Never>?
     
+    /// Image cache
+    private static let imageCache = NSCache<NSString, UIImage>()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
@@ -80,18 +83,38 @@ class UserCell: UITableViewCell {
     func configure(with user: User) {
         nameLabel.text = user.name.fullName
         emailLabel.text = user.email
+        /// Load avatar image with caching
+        loadCachedImage(for: user.picture.medium)
+    }
+    
+    private func loadCachedImage(for urlString: String) {
+        guard let url = URL(string: urlString) else { return }
         
-        // Load avatar image asynchronously
+        /// Create a cache key from the URL string
+        let cacheKey = NSString(string: urlString)
+        
+        /// Check if the image is already in the cache
+        if let cachedImage = UserCell.imageCache.object(forKey: cacheKey) {
+            // Use cached image
+            self.avatarImageView.image = cachedImage
+            return
+        }
+        
+        /// If not in cache, load from network
         imageLoadTask = Task {
-            if let url = URL(string: user.picture.medium) {
-                do {
-                    let (data, _) = try await URLSession.shared.data(from: url)
-                    if !Task.isCancelled {
-                        avatarImageView.image = UIImage(data: data)
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                if !Task.isCancelled, let image = UIImage(data: data) {
+                    /// Store in cache
+                    UserCell.imageCache.setObject(image, forKey: cacheKey)
+                    
+                    /// Set the image (on main thread since we're updating UI)
+                    await MainActor.run {
+                        self.avatarImageView.image = image
                     }
-                } catch {
-                    print("Failed to load image: \(error)")
                 }
+            } catch {
+                print("Failed to load image: \(error)")
             }
         }
     }

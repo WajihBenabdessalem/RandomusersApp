@@ -8,6 +8,6 @@
 import Foundation
 
 protocol UserRepositoryProtocol {
-    func fetchUsers() async throws -> [User]
+    func fetchUsers(page: Int) async throws -> [User]
     func loadCachedUsers() async -> [User]?
 }

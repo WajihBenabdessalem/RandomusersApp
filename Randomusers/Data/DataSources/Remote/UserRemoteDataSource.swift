@@ -15,12 +15,12 @@ class UserRemoteDataSource {
         self.networkService = networkService
     }
     
-    func fetchUsers() async throws -> [User] {
+    func fetchUsers(page: Int = 1) async throws -> [User] {
         if !NetworkMonitor.shared.isConnected {
             throw NetworkError.noInternetConnection
         }
-        
-        let response: UserResponse = try await networkService.fetch(from: baseURL)
+        let paginatedURL = "\(baseURL)&page=\(page)"
+        let response: UserResponse = try await networkService.fetch(from: paginatedURL)
         return response.results
     }
 }

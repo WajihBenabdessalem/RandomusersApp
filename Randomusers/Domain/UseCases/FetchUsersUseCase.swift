@@ -17,7 +17,7 @@ class FetchUsersUseCase {
     func execute() async throws -> [User] {
         /// Trying to fetch from network first
         do {
-            return try await repository.fetchUsers()
+            return try await repository.fetchUsers(page: 1)
         } catch NetworkError.noInternetConnection {
             /// If no internet, i am trying to load from cache
             if let cachedUsers = await repository.loadCachedUsers(), !cachedUsers.isEmpty {
@@ -35,7 +35,7 @@ class FetchUsersUseCase {
         }
     }
     
-    func loadMoreUsers() async throws -> [User] {
-        return try await repository.fetchUsers()
+    func loadMoreUsers(page: Int) async throws -> [User] {
+        return try await repository.fetchUsers(page: page)
     }
 }

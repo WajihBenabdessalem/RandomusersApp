@@ -21,6 +21,8 @@ class UsersListVC: UIViewController {
     private let retryButton = UIButton(type: .system)
     private let offlineView = UIView()
     private let offlineLabel = UILabel()
+    private let footerActivityIndicator = UIActivityIndicatorView(style: .medium)
+    private let footerView = UIView()
     
     var didSelectUser: ((User) -> Void)?
     
@@ -44,7 +46,7 @@ class UsersListVC: UIViewController {
     }
     
     private func setupUI() {
-        title = "Random Users"
+        title = "Users List"
         view.backgroundColor = .systemBackground
         
         /// Configure navigation bar
@@ -67,6 +69,9 @@ class UsersListVC: UIViewController {
         /// Configure activityIndicator
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.hidesWhenStopped = true
+        
+        /// Configure footer loading indicator
+        setupFooterLoadingView()
         
         /// Configure error view
         errorView.translatesAutoresizingMaskIntoConstraints = false
@@ -109,7 +114,7 @@ class UsersListVC: UIViewController {
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -137,6 +142,25 @@ class UsersListVC: UIViewController {
         ])
     }
     
+    private func setupFooterLoadingView() {
+        /// Create and configure footer view with activity indicator
+        footerView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 50)
+        
+        footerActivityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        footerActivityIndicator.hidesWhenStopped = true
+        footerActivityIndicator.color = .gray
+        
+        footerView.addSubview(footerActivityIndicator)
+        
+        NSLayoutConstraint.activate([
+            footerActivityIndicator.centerXAnchor.constraint(equalTo: footerView.centerXAnchor),
+            footerActivityIndicator.centerYAnchor.constraint(equalTo: footerView.centerYAnchor)
+        ])
+        
+        /// Hide footer view initially
+        tableView.tableFooterView = nil
+    }
+    
     private func setupBindings() {
         /// Bind users for table updates
         viewModel.$users
@@ -158,6 +182,23 @@ class UsersListVC: UIViewController {
                     self?.activityIndicator.stopAnimating()
                     self?.tableView.isHidden = false
                     self?.refreshControl.endRefreshing()
+                }
+            }
+            .store(in: &cancellables)
+        /// Bind "loading more" state to footer indicator
+        viewModel.$isLoadingMore
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isLoadingMore in
+                guard let self = self else { return }
+                
+                if isLoadingMore {
+                    // Show footer with activity indicator
+                    self.tableView.tableFooterView = self.footerView
+                    self.footerActivityIndicator.startAnimating()
+                } else {
+                    // Hide footer when loading is complete
+                    self.footerActivityIndicator.stopAnimating()
+                    self.tableView.tableFooterView = nil
                 }
             }
             .store(in: &cancellables)
