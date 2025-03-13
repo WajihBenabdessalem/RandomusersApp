@@ -23,7 +23,8 @@ class UsersListVC: UIViewController {
     private let offlineLabel = UILabel()
     private let footerActivityIndicator = UIActivityIndicatorView(style: .medium)
     private let footerView = UIView()
-    
+    private let searchController = UISearchController(searchResultsController: nil)
+
     var didSelectUser: ((User) -> Void)?
     
     init(viewModel: UsersListVM) {
@@ -38,6 +39,7 @@ class UsersListVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupSearchController()
         setupBindings()
         
         Task {
@@ -51,6 +53,7 @@ class UsersListVC: UIViewController {
         
         /// Configure navigation bar
         navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
         let refreshButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(refreshButtonTapped))
         navigationItem.rightBarButtonItem = refreshButton
         
@@ -111,7 +114,7 @@ class UsersListVC: UIViewController {
         
         /// Set constraints for tableView and activityIndicator
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -142,6 +145,21 @@ class UsersListVC: UIViewController {
         ])
     }
     
+    private func setupSearchController() {
+        /// Configure search controller
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search Users"
+        searchController.searchBar.tintColor = .systemBlue
+        
+        /// Make search bar always visible
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        
+        /// We have to make sure the search bar doesn't get hidden when scrolling down
+        definesPresentationContext = true
+    }
+    
     private func setupFooterLoadingView() {
         /// Create and configure footer view with activity indicator
         footerView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 50)
@@ -163,7 +181,7 @@ class UsersListVC: UIViewController {
     
     private func setupBindings() {
         /// Bind users for table updates
-        viewModel.$users
+        viewModel.$filteredUsers
             .receive(on: RunLoop.main)
             .sink { [weak self] users in
                 self?.tableView.reloadData()
@@ -252,7 +270,7 @@ class UsersListVC: UIViewController {
 // MARK: - UITableView DataSource & Delegate
 extension UsersListVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.users.count
+        return viewModel.filteredUsers.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -260,7 +278,7 @@ extension UsersListVC: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
         
-        let user = viewModel.users[indexPath.row]
+        let user = viewModel.filteredUsers[indexPath.row]
         cell.configure(with: user)
         
         return cell
@@ -269,7 +287,7 @@ extension UsersListVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let user = viewModel.users[indexPath.row]
+        let user = viewModel.filteredUsers[indexPath.row]
         didSelectUser?(user)
     }
     
@@ -279,5 +297,13 @@ extension UsersListVC: UITableViewDataSource, UITableViewDelegate {
                 await viewModel.loadMoreUsers()
             }
         }
+    }
+}
+
+// MARK: - UISearchResultsUpdating
+extension UsersListVC: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        /// Update the searchText in the view model
+        viewModel.searchText = searchController.searchBar.text ?? ""
     }
 }
