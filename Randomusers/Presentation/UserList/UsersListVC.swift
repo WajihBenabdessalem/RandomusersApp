@@ -210,11 +210,11 @@ class UsersListVC: UIViewController {
                 guard let self = self else { return }
                 
                 if isLoadingMore {
-                    // Show footer with activity indicator
+                    /// Show footer with activity indicator
                     self.tableView.tableFooterView = self.footerView
                     self.footerActivityIndicator.startAnimating()
                 } else {
-                    // Hide footer when loading is complete
+                    /// Hide footer when loading is complete
                     self.footerActivityIndicator.stopAnimating()
                     self.tableView.tableFooterView = nil
                 }

@@ -71,6 +71,15 @@ class UsersCoordinator: Coordinator {
     func showUserDetail(for user: User) {
         let viewModel = UserDetailVM(user: user)
         let viewController = UserDetailVC(viewModel: viewModel)
+        
+        viewController.didNavigateBack = { [weak self] in
+            guard let self = self else { return }
+            
+            if self.navigationController.viewControllers.count == 1 {
+                self.delegate?.didFinish(coordinator: self)
+            }
+        }
+        
         navigationController.pushViewController(viewController, animated: true)
     }
 }

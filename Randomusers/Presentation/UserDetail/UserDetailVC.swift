@@ -14,6 +14,8 @@ class UserDetailVC: UIViewController {
     private let avatarImageView = UIImageView()
     private var imageLoadTask: Task<Void, Never>?
     
+    var didNavigateBack: (() -> Void)?
+    
     init(viewModel: UserDetailVM) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -32,6 +34,7 @@ class UserDetailVC: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         imageLoadTask?.cancel()
+        didNavigateBack?()
     }
     
     private func setupUI() {

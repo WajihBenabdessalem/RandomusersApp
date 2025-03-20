@@ -62,7 +62,7 @@ class UsersListVM {
             filteredUsers = allUsers
         } else {
             filteredUsers = allUsers.filter { user in
-                // Modify this based on your User model properties
+                /// Modify this based on User model properties
                 user.name.fullName.localizedCaseInsensitiveContains(searchText) ||
                 user.email.localizedCaseInsensitiveContains(searchText)
             }
