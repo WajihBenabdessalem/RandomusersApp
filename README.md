@@ -8,10 +8,24 @@ This iOS application follows a Clean, modular architecture pattern to create a u
 
 The project implements the Clean Architecture pattern with a clean separation of concerns:
 
-- **Model**: Data structures representing the domain entities
-- **View**: UI components rendered on screen
-- **ViewModel**: Business logic and state management using `@MainActor`
-- **Coordinator**: Navigation flow management between screens
+1. Presentation Layer (Presentation)
+    - **Folders**: UsersList, UserDetail
+    - **Components**: ViewControllers, ViewModels (Business logic and state management using `@MainActor`), Cells
+    - **Responsibility**: Handles UI logic and user interactions.
+    - **Pattern Used**: MVVM (ViewController ↔ ViewModel ↔ UseCase)
+
+2. Domain Layer (Domain)
+    - **Folders**: Models, UseCases, Protocols
+    - **Components**: User, FetchUsersUseCase, UserRepositoryProtocol
+    - **Responsibility**: Business logic, independent of frameworks.
+    - **Pure layer**: No dependency on presentation or data.
+
+3. Data Layer (Data)
+Folders: Repositories, DataSources, NetworkService, Cache
+    - **Components**: UserRepository, UserRemoteDataSource, UserLocalDataSource, NetworkService, UserCacheManager
+    - **Responsibility**: Handles data retrieval, persistence, and networking.
+    - **Implements**: UserRepositoryProtocol from Domain
+    - **Depends On**: External systems (API, DB, Cache)
 
 ## Key Features
 
