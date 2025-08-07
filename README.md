@@ -26,41 +26,53 @@ The project implements the MVVM-C (Model-View-ViewModel-Coordinator) architectur
 ## Project Structure
 
 ```
-- Application
-  - AppDelegate
-  - SceneDelegate
-  - AppCoordinator
-- Presentation
-  - UsersList
-    - UsersListViewController
-    - UsersListViewModel
-    - UserCell
-  - UserDetail
-    - UserDetailViewController
-    - UserDetailViewModel
-- Domain
-  - Models
-    - User
-  - UseCases
-    - FetchUsersUseCase
-  - Protocols
-    - UserRepositoryProtocol
-- Data
-  - NetworkService
-  - Repositories
-    - UserRepository
-  - DataSources
-    - Remote
-      - UserRemoteDataSource
-    - Local
-      - UserLocalDataSource
-  - Cache
-    - UserCacheManager
-- Common
-  - Extensions
-  - Utils
-    - NetworkMonitor
-    - ErrorHandler
+📦 RandomusersApp
+├── 📂 App
+│   ├── AppDelegate.swift
+│   ├── SceneDelegate.swift
+│   └── AppCoordinator.swift
+│
+├── 📂 Presentation
+│   ├── 📂 UsersList
+│   │   ├── UsersListViewController.swift
+│   │   ├── UsersListViewModel.swift
+│   │   └── UserCell.swift
+│   │
+│   └── 📂 UserDetail
+│       ├── UserDetailViewController.swift
+│       └── UserDetailViewModel.swift
+│
+├── 📂 Domain
+│   ├── 📂 Models
+│   │   └── User.swift
+│   │
+│   ├── 📂 UseCases
+│   │   └── FetchUsersUseCase.swift
+│   │
+│   └── 📂 Protocols
+│       └── UserRepositoryProtocol.swift
+│
+├── 📂 Data
+│   ├── NetworkService.swift
+│   │
+│   ├── 📂 Repositories
+│   │   └── UserRepository.swift
+│   │
+│   ├── 📂 DataSources
+│   │   ├── 📂 Remote
+│   │   │   └── UserRemoteDataSource.swift
+│   │   │
+│   │   └── 📂 Local
+│   │       └── UserLocalDataSource.swift
+│   │
+│   └── 📂 Cache
+│       └── UserCacheManager.swift
+│
+└── 📂 Common
+    ├── 📂 Extensions
+    └── 📂 Utils
+        ├── NetworkMonitor.swift
+        └── ErrorHandler.swift
 ```
 
 ## Implementation Details
