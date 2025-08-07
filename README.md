@@ -1,4 +1,4 @@
-# iOS User Directory Application
+# iOS User Directory Application ( UIKit, Programmatic UI )
 
 ## Project Overview
 
