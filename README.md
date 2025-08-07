@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This iOS application follows a Clean, modular architecture pattern with influence from MVVM to create a user directory that fetches data from an external API, provides caching capabilities, and delivers a seamless user experience even in offline scenarios.
+This iOS application follows a Clean, modular architecture pattern to create a user directory that fetches data from an external API, provides caching capabilities, and delivers a seamless user experience even in offline scenarios.
 
 ## Architecture
 
